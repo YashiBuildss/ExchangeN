@@ -1,84 +1,67 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { addPost } from '@/lib/api';
 
 export default function CreatePost() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
 
   const [formData, setFormData] = useState({
     title: '',
     offer: '',
     seek: '',
-    user: '',
   });
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleChange = (e) => {
-
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // GET OLD POSTS
-    const existingPosts =
-      JSON.parse(
-        localStorage.getItem('exchangePosts')
-      ) || [];
-
-    // CREATE NEW POST
-    const newPost = {
-      id: Date.now(),
-      title: formData.title,
-      offer: formData.offer,
-      seek: formData.seek,
-      user: formData.user,
-    };
-
-    // SAVE POSTS
-    localStorage.setItem(
-      'exchangePosts',
-      JSON.stringify([
-        newPost,
-        ...existingPosts,
-      ])
-    );
-
-    // REDIRECT TO HOME
-    window.location.href = '/';
-
+    setError('');
+    setSubmitting(true);
+    try {
+      await addPost(formData);
+      router.push('/exchange');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) return null;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p className="text-gray-400">
+          Please <a href="/login" className="text-blue-400 underline">log in</a> to create a post.
+        </p>
+      </div>
+    );
+  }
 
   return (
-
     <div className="min-h-screen bg-black text-white flex items-center justify-center px-5 py-10">
-
       <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl p-8">
+        <h1 className="text-4xl font-bold mb-3">Create Skill Exchange Post</h1>
+        <p className="text-gray-400 mb-10">Offer a skill and learn a new one for free.</p>
 
-        <h1 className="text-4xl font-bold mb-3">
-          Create Skill Exchange Post
-        </h1>
+        {error && (
+          <p className="bg-red-900/30 border border-red-700 text-red-300 rounded-xl px-4 py-3 mb-6">
+            {error}
+          </p>
+        )}
 
-        <p className="text-gray-400 mb-10">
-          Offer a skill and learn a new one for free.
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
-
-          {/* TITLE */}
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-
-            <label className="block text-sm mb-2 text-gray-400">
-              Post Title
-            </label>
-
+            <label className="block text-sm mb-2 text-gray-400">Post Title</label>
             <input
               type="text"
               name="title"
@@ -88,16 +71,10 @@ export default function CreatePost() {
               onChange={handleChange}
               className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500"
             />
-
           </div>
 
-          {/* OFFER */}
           <div>
-
-            <label className="block text-sm mb-2 text-gray-400">
-              Skill You Offer
-            </label>
-
+            <label className="block text-sm mb-2 text-gray-400">Skill You Offer</label>
             <input
               type="text"
               name="offer"
@@ -107,16 +84,10 @@ export default function CreatePost() {
               onChange={handleChange}
               className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-green-500"
             />
-
           </div>
 
-          {/* SEEK */}
           <div>
-
-            <label className="block text-sm mb-2 text-gray-400">
-              Skill You Want
-            </label>
-
+            <label className="block text-sm mb-2 text-gray-400">Skill You Want</label>
             <input
               type="text"
               name="seek"
@@ -126,41 +97,17 @@ export default function CreatePost() {
               onChange={handleChange}
               className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500"
             />
-
           </div>
 
-          {/* USER */}
-          <div>
-
-            <label className="block text-sm mb-2 text-gray-400">
-              Your Name
-            </label>
-
-            <input
-              type="text"
-              name="user"
-              required
-              placeholder="Ex: Yashi"
-              value={formData.user}
-              onChange={handleChange}
-              className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-purple-500"
-            />
-
-          </div>
-
-          {/* BUTTON */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 py-4 rounded-xl font-semibold text-lg transition"
+            disabled={submitting}
+            className="w-full bg-green-600 hover:bg-green-700 py-4 rounded-xl font-semibold text-lg transition disabled:opacity-50"
           >
-            Create Post
+            {submitting ? 'Posting...' : 'Create Post'}
           </button>
-
         </form>
-
       </div>
-
     </div>
-
   );
 }
