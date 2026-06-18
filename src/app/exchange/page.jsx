@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllPosts } from '@/lib/api';
 
-const ExchangeCard = ({ offer, seek, user, title, id }) => {
+const ExchangeCard = ({ offer, seek, user, userId, title, id }) => {
   const router = useRouter();
 
   return (
@@ -30,7 +30,7 @@ const ExchangeCard = ({ offer, seek, user, title, id }) => {
       </div>
 
       <button
-        onClick={() => router.push(`/chat/${id}`)}
+        onClick={() => router.push(`/chat/${userId}`)}
         className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition font-semibold"
       >
         Start Conversation
@@ -57,6 +57,7 @@ const Exchange = () => {
           offer: p.offer,
           seek: p.seek,
           user: p.user?.name || 'Unknown',
+          userId: p.user?._id,
         }));
         setExchangeData(formatted);
       })
@@ -162,6 +163,7 @@ const Exchange = () => {
                     offer={data.offer}
                     seek={data.seek}
                     user={data.user}
+                    userId={data.userId}
                   />
                 ))}
               </div>

@@ -1,38 +1,40 @@
 'use client';
 import { useFormik } from 'formik';
-import React from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const Login = () => {
+  const { login } = useAuth();
+  const router = useRouter();
 
   const loginForm = useFormik({
     initialValues: {
       email: '',
       password: '',
     },
-    onSubmit: (values) => {
-      console.log('Login Submitted:', values);
+    onSubmit: async (values, { setSubmitting, setFieldError }) => {
+      try {
+        await login(values.email, values.password);
+        router.push('/profile');
+      } catch (err) {
+        setFieldError('password', err.message || 'Login failed');
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
   return (
-    // Centered container for the entire page
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-
-      {/* Login Card (Container for the form) */}
       <div className="w-full max-w-sm p-8 sm:p-10 rounded-xl bg-gray-900 shadow-2xl space-y-6 text-center">
-        
-        
         <h1 className="text-2xl font-bold text-white leading-snug">
           Log in to XchangeN
         </h1>
         <p className="text-gray-400 text-sm">
           Access your account and continue exchanging skills.
         </p>
-        
-        {/* Formik Login Form */}
+
         <form onSubmit={loginForm.handleSubmit} className="space-y-4 pt-4">
-          
-          {/* Email Input */}
           <input
             type="email"
             placeholder="Email Address"
@@ -44,28 +46,31 @@ const Login = () => {
             className="w-full p-3 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          {/* Password Input */}
-          <input
-            type="password"
-            placeholder="Password"
-            id="password"
-            name="password"
-            onChange={loginForm.handleChange}
-            value={loginForm.values.password}
-            required
-            className="w-full p-3 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              id="password"
+              name="password"
+              onChange={loginForm.handleChange}
+              value={loginForm.values.password}
+              required
+              className="w-full p-3 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {loginForm.errors.password && (
+              <p className="text-red-400 text-xs mt-1 text-left">{loginForm.errors.password}</p>
+            )}
+          </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
+            disabled={loginForm.isSubmitting}
             className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-150 shadow-lg"
           >
-            Log In
+            {loginForm.isSubmitting ? 'Logging in...' : 'Log In'}
           </button>
         </form>
 
-        {/* Social Login Buttons (Kept for functionality, but simplified) */}
         <div className="pt-4 space-y-3">
           <div className="flex items-center justify-center gap-2 border border-white py-2 px-4 rounded shadow-sm hover:bg-gray-800 transition cursor-pointer">
              <img
@@ -73,7 +78,6 @@ const Login = () => {
                 className="h-5 w-5"
                 alt="Google Icon"
               />
-            <span className="text-white text-lg"></span>
             <span className="text-sm text-white font-medium">Continue with Google</span>
           </div>
 
@@ -83,12 +87,10 @@ const Login = () => {
               className="h-5 w-5"
               alt="Facebook Icon"
             />
-            <span className="text-white text-sm"></span>
             <span className="text-sm text-white font-medium">Continue with Facebook</span>
           </button>
         </div>
 
-        {/* Terms and Conditions (Reused) */}
         <p className="text-xs text-gray-500 text-center pt-2">
           By logging in, I declare that I have read and accepted{' '}
           <a href="#" className="text-blue-500 underline">
@@ -101,10 +103,9 @@ const Login = () => {
           .
         </p>
 
-        {/* Link to Sign Up (Reused) */}
         <p className="text-center text-white text-sm">
           Need an account?{' '}
-          <a href="#" className="text-blue-500 underline font-semibold">
+          <a href="/signup" className="text-blue-500 underline font-semibold">
             Sign Up
           </a>
         </p>

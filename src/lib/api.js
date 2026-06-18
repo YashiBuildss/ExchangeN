@@ -109,3 +109,33 @@ export const deletePost = async (id) => {
   if (!res.ok) throw new Error(data.message || 'Failed to delete post');
   return data;
 };
+export const getConversation = async (userId) => {
+  const res = await fetch(`${BASE_URL}/message/${userId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to fetch messages');
+  return data;
+};
+
+export const sendMessageHttp = async (receiver, content) => {
+  const res = await fetch(`${BASE_URL}/message/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ receiver, content }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to send message');
+  return data;
+};
+export const getConversationsList = async () => {
+  const res = await fetch(`${BASE_URL}/message/conversations/list`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to fetch conversations');
+  return data;
+};
