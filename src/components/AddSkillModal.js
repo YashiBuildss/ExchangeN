@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
+import { addSkill } from '@/lib/api';
 
-// This component will be passed two functions from the main profile page:
-// 1. onClose: To close the modal when done.
-// 2. onSkillAdded: To update the list of skills on the profile page.
 export default function AddSkillModal({ onClose, onSkillAdded }) {
   const [skillName, setSkillName] = useState('');
   const [skillType, setSkillType] = useState('OFFER'); // Default to 'OFFER'
@@ -21,18 +19,7 @@ export default function AddSkillModal({ onClose, onSkillAdded }) {
     setLoading(true);
 
     try {
-      // API CALL TO YOUR BACKEND
-      const response = await fetch('http://localhost:5000/skill/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: skillName, type: skillType }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Server error, could not save skill.');
-      }
-
-      const newSkill = await response.json();
+      const newSkill = await addSkill({ name: skillName, type: skillType });
       
       // Success! Update the parent component's state
       onSkillAdded(newSkill); 

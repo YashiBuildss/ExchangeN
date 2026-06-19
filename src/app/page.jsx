@@ -1,282 +1,300 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import DotGridBackground from '@/components/DotGridBackground';
+
+const prompts = [
+  '"guitar lessons for web design help"',
+  '"Spanish tutoring for Python coaching"',
+  '"photography skills for cooking lessons"',
+  '"UI/UX feedback for yoga sessions"',
+  '"video editing for English practice"',
+];
+
+const features = [
+  {
+    title: 'Real profiles.',
+    desc: 'List what you can teach and what you want to learn. No fake ratings, no paid boosts.',
+  },
+  {
+    title: 'Live chat & calls.',
+    desc: 'Message directly, share files, hop on a voice or video call — everything in one place.',
+  },
+  {
+    title: 'Browse by skill.',
+    desc: 'Filter the Exchange board by category. Find your match and start a conversation.',
+  },
+];
+
+const steps = [
+  { num: '01', title: 'Post a skill', desc: 'Tell the community what you can teach and what you want to learn in return.' },
+  { num: '02', title: 'Find a match', desc: 'Browse the Exchange board. When someone fits, message them directly.' },
+  { num: '03', title: 'Swap and connect', desc: 'Arrange your sessions however works for you. No platform cut, no fees.' },
+];
+
+const faqs = [
+  {
+    q: 'Is XchangeN free?',
+    a: 'Yes — completely free. No subscription, no transaction fees, no hidden costs.',
+  },
+  {
+    q: 'How does a skill swap work?',
+    a: 'Post what you can teach and what you want to learn. Browse for people who want the opposite. Message them, agree on a format, and go.',
+  },
+  {
+    q: 'What kinds of skills can I exchange?',
+    a: 'Anything teachable — coding, languages, music, cooking, fitness, photography, design, writing. If you can explain it, you can swap it.',
+  },
+  {
+    q: "Do I need to be an expert?",
+    a: "No. You just need to know more about something than the person you're swapping with. Beginners teach beginners all the time.",
+  },
+];
+
+const wordAnim = {
+  hidden: { opacity: 0, y: 24, filter: 'blur(4px)' },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.55, ease: [0.25, 0.1, 0.25, 1] } },
+};
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
+const revealCard = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+};
+const revealStagger = { hidden: {}, visible: { transition: { staggerChildren: 0.14 } } };
 
 export default function Home() {
+  const [promptIdx, setPromptIdx] = useState(0);
+  const [openFaq, setOpenFaq] = useState(null);
 
-  // ---------------- POSTS ----------------
-  const [posts, setPosts] = useState([]);
-
-  // ---------------- LOAD POSTS ----------------
   useEffect(() => {
-
-    const savedPosts =
-      JSON.parse(
-        localStorage.getItem('exchangePosts')
-      ) || [];
-
-    // SHOW NEWEST POSTS FIRST
-    setPosts(savedPosts.reverse());
-
+    const t = setInterval(() => setPromptIdx((i) => (i + 1) % prompts.length), 2200);
+    return () => clearInterval(t);
   }, []);
 
-  // ---------------- NAVIGATION ----------------
-  const handleStartNow = () => {
-    window.location.href = '/exchange';
-  };
-
-  const handleTakeTour = () => {
-    window.location.href = '/aboutus';
-  };
-
-  const handleCreatePost = () => {
-    window.location.href = '/create-post';
-  };
-
   return (
-    <div>
+    <main className="bg-[#0a0a0a] text-white">
 
-      {/* HERO SECTION */}
-      <div className="bg-white pb-6 sm:pb-8 lg:pb-12">
+      {/* Hero */}
+      <DotGridBackground>
+        <section className="min-h-[92vh] flex flex-col items-center justify-center px-4 text-center py-24">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-400 text-xs font-medium tracking-wide mb-8"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            Free · No fees · Community-driven
+          </motion.div>
 
-        <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
+          <motion.h1
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            className="font-[family-name:var(--font-space-grotesk)] text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-6"
+          >
+            {['Trade', 'skills,'].map((w, i) => (
+              <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.2em]">{w}</motion.span>
+            ))}
+            <br />
+            {['not', 'money.'].map((w, i) => (
+              <motion.span key={i} variants={wordAnim} className="inline-block mr-[0.2em] text-amber-400">{w}</motion.span>
+            ))}
+          </motion.h1>
 
-          <section className="relative flex items-center justify-center overflow-hidden rounded-lg bg-gray-100 py-16 shadow-lg md:py-20 xl:py-48">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.65 }}
+            className="text-gray-400 text-lg max-w-xl mb-4"
+          >
+            XchangeN connects people who want to teach something with people who want to learn something. No money changes hands.
+          </motion.p>
 
-            {/* IMAGE */}
-            <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
-              alt="Hero"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-
-            {/* OVERLAY */}
-            <div className="absolute inset-0 bg-indigo-900/60" />
-
-            {/* CONTENT */}
-            <div className="relative flex flex-col items-center p-4 sm:max-w-xl">
-
-              <p className="mb-4 text-center text-lg text-gray-100">
-                It's time to swap your skills!
-              </p>
-
-              <h1 className="mb-8 text-center text-4xl font-bold text-white sm:text-5xl md:text-6xl">
-                Learn. Teach. Exchange. Grow.
-              </h1>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-
-                {/* START */}
-                <button
-                  onClick={handleStartNow}
-                  className="rounded-lg bg-black px-8 py-3 text-white font-semibold hover:bg-indigo-500 transition"
-                >
-                  Start now
-                </button>
-
-                {/* TOUR */}
-                <button
-                  onClick={handleTakeTour}
-                  className="rounded-lg bg-white px-8 py-3 text-black font-semibold hover:bg-gray-200 transition"
-                >
-                  Take tour
-                </button>
-
-              </div>
-
-            </div>
-
-          </section>
-        </div>
-      </div>
-
-      {/* FEATURE SECTION */}
-      <div className="bg-white py-12">
-
-        <div className="max-w-7xl mx-auto px-5">
-
-          <h2 className="text-3xl font-bold text-center mb-4">
-            Learn something new for FREE!
-          </h2>
-
-          <p className="text-center text-gray-500 mb-12">
-            Learn a skill, teach a skill, and grow together with people around the world.
-          </p>
-
-          {/* FEATURE CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* CARD 1 */}
-            <div className="bg-indigo-100 p-8 rounded-2xl shadow-md">
-
-              <h3 className="text-2xl font-bold mb-3">
-                Learn Skills
-              </h3>
-
-              <p className="text-gray-700">
-                Learn coding, design, editing, marketing, music and much more for free.
-              </p>
-
-            </div>
-
-            {/* CARD 2 */}
-            <div className="bg-indigo-100 p-8 rounded-2xl shadow-md">
-
-              <h3 className="text-2xl font-bold mb-3">
-                Teach Others
-              </h3>
-
-              <p className="text-gray-700">
-                Share your own knowledge and help others grow while improving yourself.
-              </p>
-
-            </div>
-
-            {/* CARD 3 */}
-            <div className="bg-indigo-100 p-8 rounded-2xl shadow-md">
-
-              <h3 className="text-2xl font-bold mb-3">
-                Exchange Skills
-              </h3>
-
-              <p className="text-gray-700">
-                Match with people who need your skills and offer the skills you want.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-
-      {/* RECENT POSTS SECTION */}
-      <div className="bg-black text-white py-16">
-
-        <div className="max-w-7xl mx-auto px-5">
-
-          {/* HEADER */}
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-5 mb-10">
-
-            <div>
-
-              <h2 className="text-4xl font-bold mb-2">
-                Recent Skill Exchange Posts
-              </h2>
-
-              <p className="text-gray-400">
-                Connect with people and start learning today.
-              </p>
-
-            </div>
-
-            {/* CREATE BUTTON */}
-            <button
-              onClick={handleCreatePost}
-              className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl font-semibold transition"
-            >
-              + Create Post
-            </button>
-
-          </div>
-
-          {/* NO POSTS */}
-          {posts.length === 0 ? (
-
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl py-20 text-center">
-
-              <p className="text-2xl mb-3">
-                No posts yet
-              </p>
-
-              <p className="text-gray-400 mb-6">
-                Create your first skill exchange post.
-              </p>
-
-              <button
-                onClick={handleCreatePost}
-                className="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl font-semibold transition"
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.85 }}
+            className="h-7 mb-10 text-sm text-gray-500"
+          >
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={promptIdx}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35 }}
+                className="block italic"
               >
-                Create Post
-              </button>
+                e.g. {prompts[promptIdx]}
+              </motion.span>
+            </AnimatePresence>
+          </motion.div>
 
-            </div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.0 }}
+            className="flex flex-col sm:flex-row gap-3"
+          >
+            <Link
+              href="/signup"
+              className="px-7 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold text-sm transition-colors shadow-lg shadow-amber-500/20"
+            >
+              Start Swapping Free
+            </Link>
+            <Link
+              href="/exchange"
+              className="px-7 py-3.5 rounded-xl border border-white/10 text-gray-300 hover:border-white/25 hover:text-white text-sm font-medium transition-colors"
+            >
+              Browse Skills
+            </Link>
+          </motion.div>
+        </section>
+      </DotGridBackground>
 
-          ) : (
+      {/* Features */}
+      <section className="py-24 px-4 border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="font-[family-name:var(--font-space-grotesk)] text-3xl sm:text-4xl font-bold mb-14 text-center"
+          >
+            Built for real exchanges.
+          </motion.h2>
 
-            /* POSTS GRID */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-              {posts.map((post, index) => (
-
-                <div
-                  key={index}
-                  className="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-blue-600 transition"
-                >
-
-                  {/* TITLE */}
-                  <h3 className="text-2xl font-bold mb-3">
-                    {post.title}
-                  </h3>
-
-                  {/* USER */}
-                  <p className="text-gray-400 mb-5">
-
-                    Posted by{' '}
-
-                    <span className="text-blue-400">
-                      {post.user}
-                    </span>
-
-                  </p>
-
-                  {/* OFFER */}
-                  <div className="mb-4">
-
-                    <p className="text-xs text-gray-500 mb-2">
-                      OFFERING
-                    </p>
-
-                    <span className="inline-block bg-green-900/40 border border-green-700 text-green-300 px-4 py-2 rounded-full text-sm">
-                      {post.offer}
-                    </span>
-
-                  </div>
-
-                  {/* SEEK */}
-                  <div className="mb-6">
-
-                    <p className="text-xs text-gray-500 mb-2">
-                      SEEKING
-                    </p>
-
-                    <span className="inline-block bg-blue-900/40 border border-blue-700 text-blue-300 px-4 py-2 rounded-full text-sm">
-                      {post.seek}
-                    </span>
-
-                  </div>
-
-                  {/* BUTTON */}
-                  <button
-                    onClick={() =>
-                      window.location.href = `/chat/${post.id}`
-                    }
-                    className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-semibold transition"
-                  >
-                    Start Conversation
-                  </button>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          )}
-
+          <motion.div
+            variants={revealStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          >
+            {features.map((f) => (
+              <motion.div
+                key={f.title}
+                variants={revealCard}
+                whileHover={{ y: -4 }}
+                className="bg-[#161616] border border-white/5 rounded-2xl p-8 hover:border-amber-500/20 hover:shadow-[0_0_28px_rgba(245,158,11,0.08)] transition-all duration-300"
+              >
+                <h3 className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold text-white mb-3">{f.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
-      </div>
+      </section>
 
-    </div>
+      {/* How it works */}
+      <section className="py-24 px-4 border-t border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="mb-14 text-center"
+          >
+            <h2 className="font-[family-name:var(--font-space-grotesk)] text-3xl sm:text-4xl font-bold mb-3">How it works.</h2>
+            <p className="text-gray-500 text-sm">Three steps. No setup fee. No catch.</p>
+          </motion.div>
+
+          <motion.div
+            variants={revealStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          >
+            {steps.map((s) => (
+              <motion.div
+                key={s.num}
+                variants={revealCard}
+                whileHover={{ y: -4 }}
+                className="bg-[#161616] border border-white/5 rounded-2xl p-8 hover:border-amber-500/20 transition-all duration-300"
+              >
+                <p className="text-amber-400/50 font-mono text-sm font-semibold mb-5">{s.num}</p>
+                <h3 className="font-[family-name:var(--font-space-grotesk)] text-xl font-semibold text-white mb-3">{s.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 px-4 border-t border-white/5">
+        <div className="max-w-2xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+            className="font-[family-name:var(--font-space-grotesk)] text-3xl sm:text-4xl font-bold mb-12 text-center"
+          >
+            Common questions.
+          </motion.h2>
+
+          <motion.div
+            variants={revealStagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            className="space-y-3"
+          >
+            {faqs.map((faq, i) => (
+              <motion.div key={i} variants={revealCard} className="border border-white/5 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left text-white hover:bg-white/3 transition-colors"
+                >
+                  <span className="font-medium text-sm">{faq.q}</span>
+                  <span className={`text-amber-400 text-lg leading-none transition-transform duration-200 ml-4 flex-shrink-0 ${openFaq === i ? 'rotate-45' : ''}`}>+</span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    >
+                      <p className="px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">{faq.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-24 px-4 border-t border-white/5">
+        <div className="max-w-2xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="font-[family-name:var(--font-space-grotesk)] text-3xl sm:text-4xl font-bold mb-4">Ready to start swapping?</h2>
+            <p className="text-gray-400 mb-8">Join a community of people trading skills, not money. It takes 30 seconds to sign up.</p>
+            <Link
+              href="/signup"
+              className="inline-block px-8 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold transition-colors shadow-lg shadow-amber-500/20"
+            >
+              Create Your Free Account
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+    </main>
   );
 }

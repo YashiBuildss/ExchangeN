@@ -4,21 +4,32 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getConversationsList } from '@/lib/api';
+import { getSocket } from '@/lib/socket';
 
 export default function MessagesPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
 
   const [conversations, setConversations] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!user) return;
+
+    const socket = getSocket();
+    socket.emit('register', user._id);
+
+    const handleOnlineUsers = (ids) => setOnlineUsers(ids);
+    socket.on('online_users', handleOnlineUsers);
+
     getConversationsList()
       .then(setConversations)
       .catch((err) => setError(err.message))
       .finally(() => setFetching(false));
+
+    return () => socket.off('online_users', handleOnlineUsers);
   }, [user]);
 
   if (loading) return null;
@@ -38,7 +49,7 @@ export default function MessagesPage() {
       <h1 className="text-3xl font-bold mb-8">Messages</h1>
 
       {fetching ? (
-        <p className="text-gray-500">Loading conversations...</p>
+        <p className="text-gray-500">Loading conversations…</p>
       ) : error ? (
         <p className="text-red-400">{error}</p>
       ) : conversations.length === 0 ? (
@@ -53,21 +64,40 @@ export default function MessagesPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {conversations.map((conv) => (
-            <button
-              key={conv.userId}
-              onClick={() => router.push(`/chat/${conv.userId}`)}
-              className="w-full text-left bg-gray-900 border border-gray-800 hover:border-blue-600 rounded-2xl p-5 transition flex justify-between items-center"
-            >
-              <div>
-                <p className="font-semibold text-white">{conv.name}</p>
-                <p className="text-gray-400 text-sm truncate max-w-xs">{conv.lastMessage}</p>
-              </div>
-              <span className="text-gray-500 text-xs">
-                {new Date(conv.lastMessageAt).toLocaleDateString()}
-              </span>
-            </button>
-          ))}
+          {conversations.map((conv) => {
+            const isOnline = onlineUsers.includes(conv.userId?.toString());
+            return (
+              <button
+                key={conv.userId}
+                onClick={() => router.push(`/chat/${conv.userId}`)}
+                className="w-full text-left bg-gray-900 border border-gray-800 hover:border-blue-600 rounded-2xl p-5 transition flex justify-between items-center"
+              >
+                <div className="flex items-center gap-3">
+                  {/* Avatar with online dot */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold text-sm">
+                      {conv.name?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                    {isOnline && (
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900 shadow-[0_0_6px_#4ade80]" />
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-white">{conv.name}</p>
+                      {isOnline && <span className="text-green-400 text-xs">Online</span>}
+                    </div>
+                    <p className="text-gray-400 text-sm truncate max-w-xs">{conv.lastMessage}</p>
+                  </div>
+                </div>
+
+                <span className="text-gray-500 text-xs flex-shrink-0">
+                  {new Date(conv.lastMessageAt).toLocaleDateString()}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

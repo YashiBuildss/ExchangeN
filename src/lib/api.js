@@ -24,6 +24,13 @@ export const login = async (email, password) => {
   return data;
 };
 
+export const getUserById = async (id) => {
+  const res = await fetch(`${BASE_URL}/user/${id}`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'User not found');
+  return data;
+};
+
 export const getMe = async () => {
   const res = await fetch(`${BASE_URL}/user/me`, {
     headers: { Authorization: `Bearer ${getToken()}` },
@@ -79,6 +86,13 @@ export const getMySkills = async () => {
   if (!res.ok) throw new Error(data.message || 'Failed to fetch skills');
   return data;
 };
+export const getSkillListings = async () => {
+  const res = await fetch(`${BASE_URL}/skill/listings`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to fetch skill listings');
+  return data;
+};
+
 export const getAllPosts = async () => {
   const res = await fetch(`${BASE_URL}/post/all`);
   const data = await res.json();
@@ -109,6 +123,21 @@ export const deletePost = async (id) => {
   if (!res.ok) throw new Error(data.message || 'Failed to delete post');
   return data;
 };
+export const sendFileMessage = async (receiver, type, file) => {
+  const formData = new FormData();
+  formData.append('receiver', receiver);
+  formData.append('type', type);
+  formData.append('file', file);
+  const res = await fetch(`${BASE_URL}/message/upload`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to upload file');
+  return data;
+};
+
 export const getConversation = async (userId) => {
   const res = await fetch(`${BASE_URL}/message/${userId}`, {
     headers: { Authorization: `Bearer ${getToken()}` },

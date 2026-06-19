@@ -2,39 +2,57 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllPosts } from '@/lib/api';
+import { getAllPosts, getSkillListings } from '@/lib/api';
 
-const ExchangeCard = ({ offer, seek, user, userId, title, id }) => {
+const SkillTag = ({ label, color }) => (
+  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mr-1 mb-1 ${color}`}>
+    {label}
+  </span>
+);
+
+const ExchangeCard = ({ title, offers, seeks, user, userId, source }) => {
   const router = useRouter();
-
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 hover:border-blue-600 transition duration-300 hover:-translate-y-1 shadow-lg">
-      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+    <div className="bg-[#161616] border border-white/5 rounded-2xl p-6 hover:border-amber-500/20 hover:shadow-[0_0_24px_rgba(245,158,11,0.08)] transition-all duration-300 hover:-translate-y-1 flex flex-col">
+      <div className="flex items-start justify-between mb-2">
+        <h3 className="text-base font-semibold text-white leading-snug">{title}</h3>
+        {source === 'skills' && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex-shrink-0 ml-2">
+            Profile
+          </span>
+        )}
+      </div>
 
-      <p className="text-sm text-gray-400 mb-6">
-        Posted by <span className="text-blue-400 font-medium">{user}</span>
+      <p className="text-xs text-gray-500 mb-5">
+        by <span className="text-amber-400 font-medium">{user}</span>
       </p>
 
-      <div className="mb-5">
-        <p className="text-xs text-gray-500 mb-2 tracking-wider">OFFERING</p>
-        <span className="inline-block px-4 py-2 rounded-full bg-green-900/30 border border-green-700 text-green-300 text-sm">
-          {offer}
-        </span>
+      <div className="mb-4">
+        <p className="text-xs text-gray-600 mb-2 tracking-widest uppercase">Offering</p>
+        <div className="flex flex-wrap">
+          {offers.map((s) => (
+            <SkillTag key={s} label={s} color="bg-emerald-900/25 border border-emerald-700/40 text-emerald-400" />
+          ))}
+        </div>
       </div>
 
       <div className="mb-6">
-        <p className="text-xs text-gray-500 mb-2 tracking-wider">SEEKING</p>
-        <span className="inline-block px-4 py-2 rounded-full bg-blue-900/30 border border-blue-700 text-blue-300 text-sm">
-          {seek}
-        </span>
+        <p className="text-xs text-gray-600 mb-2 tracking-widest uppercase">Seeking</p>
+        <div className="flex flex-wrap">
+          {seeks.map((s) => (
+            <SkillTag key={s} label={s} color="bg-amber-900/25 border border-amber-700/40 text-amber-400" />
+          ))}
+        </div>
       </div>
 
-      <button
-        onClick={() => router.push(`/chat/${userId}`)}
-        className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition font-semibold"
-      >
-        Start Conversation
-      </button>
+      <div className="mt-auto">
+        <button
+          onClick={() => router.push(`/chat/${userId}`)}
+          className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold text-sm transition-colors"
+        >
+          Start Conversation
+        </button>
+      </div>
     </div>
   );
 };
@@ -42,134 +60,148 @@ const ExchangeCard = ({ offer, seek, user, userId, title, id }) => {
 const Exchange = () => {
   const router = useRouter();
 
-  const [exchangeData, setExchangeData] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
   const [filters, setFilters] = useState({ offering: '', seeking: '' });
 
   useEffect(() => {
-    getAllPosts()
-      .then((posts) => {
-        const formatted = posts.map((p) => ({
-          id: p._id,
+    Promise.all([getAllPosts(), getSkillListings()])
+      .then(([posts, skillListings]) => {
+        const postItems = posts.map((p) => ({
+          id: `post-${p._id}`,
           title: p.title,
-          offer: p.offer,
-          seek: p.seek,
+          offers: [p.offer],
+          seeks: [p.seek],
           user: p.user?.name || 'Unknown',
           userId: p.user?._id,
+          source: 'post',
         }));
-        setExchangeData(formatted);
+
+        const skillItems = skillListings.map((l) => ({
+          id: `skill-${l.userId}`,
+          title: `${l.userName}'s Skills`,
+          offers: l.offers,
+          seeks: l.seeks,
+          user: l.userName,
+          userId: l.userId,
+          source: 'skills',
+        }));
+
+        const postUserIds = new Set(posts.map((p) => p.user?._id?.toString()));
+        const dedupedSkillItems = skillItems.filter(
+          (item) => !postUserIds.has(item.userId?.toString())
+        );
+
+        setAllItems([...postItems, ...dedupedSkillItems]);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
   const filteredData = useMemo(() => {
-    return exchangeData.filter((item) => {
-      const offerFilter = filters.offering.toLowerCase().trim();
-      const seekFilter = filters.seeking.toLowerCase().trim();
-      const itemOffer = item.offer.toLowerCase();
-      const itemSeek = item.seek.toLowerCase();
+    const offerFilter = filters.offering.toLowerCase().trim();
+    const seekFilter = filters.seeking.toLowerCase().trim();
 
-      const matchesOffer = offerFilter === '' || itemOffer.includes(offerFilter);
-      const matchesSeek = seekFilter === '' || itemSeek.includes(seekFilter);
-
+    return allItems.filter((item) => {
+      const offersStr = item.offers.join(' ').toLowerCase();
+      const seeksStr = item.seeks.join(' ').toLowerCase();
+      const matchesOffer = offerFilter === '' || offersStr.includes(offerFilter);
+      const matchesSeek = seekFilter === '' || seeksStr.includes(seekFilter);
       const perfectMatch =
-        offerFilter &&
-        seekFilter &&
-        itemOffer.includes(seekFilter) &&
-        itemSeek.includes(offerFilter);
-
+        offerFilter && seekFilter &&
+        offersStr.includes(seekFilter) &&
+        seeksStr.includes(offerFilter);
       return (matchesOffer && matchesSeek) || perfectMatch;
     });
-  }, [exchangeData, filters]);
+  }, [allItems, filters]);
+
+  const inputClass =
+    'w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-amber-500/50 transition-colors';
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 sm:px-8 lg:px-12 py-10">
+    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 sm:px-8 lg:px-12 py-10">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-12">
-          <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">Skill Exchange Matcher</h1>
-          <p className="text-gray-400 text-lg max-w-2xl">
-            Learn skills for free by teaching your own skills to others.
+        <div className="mb-10">
+          <h1 className="font-[family-name:var(--font-space-grotesk)] text-4xl sm:text-5xl font-bold mb-3">
+            Skill Exchange
+          </h1>
+          <p className="text-gray-500 text-base max-w-xl">
+            Find someone whose skills complement yours. No money, just knowledge.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-          <div className="lg:col-span-1 bg-gray-900 border border-gray-800 rounded-2xl p-6 h-fit sticky top-5">
-            <h2 className="text-2xl font-bold mb-6">Match Skills</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 bg-[#161616] border border-white/5 rounded-2xl p-6 h-fit sticky top-20">
+            <h2 className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold mb-5">Filter</h2>
 
-            <div className="mb-5">
-              <label className="block text-sm text-gray-400 mb-2">What Can You Teach?</label>
+            <div className="mb-4">
+              <label className="block text-xs text-gray-500 mb-1.5 uppercase tracking-wider">I can teach</label>
               <input
                 type="text"
                 value={filters.offering}
-                placeholder="Ex: Python"
+                placeholder="e.g. Python"
                 onChange={(e) => setFilters({ ...filters, offering: e.target.value })}
-                className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500"
+                className={inputClass}
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm text-gray-400 mb-2">What Do You Want To Learn?</label>
+            <div className="mb-5">
+              <label className="block text-xs text-gray-500 mb-1.5 uppercase tracking-wider">I want to learn</label>
               <input
                 type="text"
                 value={filters.seeking}
-                placeholder="Ex: React"
+                placeholder="e.g. React"
                 onChange={(e) => setFilters({ ...filters, seeking: e.target.value })}
-                className="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500"
+                className={inputClass}
               />
             </div>
 
             <button
               onClick={() => setFilters({ offering: '', seeking: '' })}
-              className="w-full py-3 rounded-xl bg-gray-700 hover:bg-gray-600 transition font-semibold mb-4"
+              className="w-full py-2.5 rounded-xl border border-white/8 text-gray-400 hover:text-white hover:border-white/15 transition-colors text-sm mb-3"
             >
               Clear Filters
             </button>
 
             <button
               onClick={() => router.push('/create_post')}
-              className="w-full py-3 rounded-xl bg-green-600 hover:bg-green-700 transition font-semibold mb-4"
+              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold text-sm transition-colors"
             >
-              + Create New Post
-            </button>
-
-            <button
-              onClick={() => router.push('/')}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition font-semibold"
-            >
-              View Home Feed
+              + New Post
             </button>
           </div>
 
+          {/* Listings */}
           <div className="lg:col-span-3">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold">Matching Opportunities</h2>
-              <p className="text-gray-400">{filteredData.length} results</p>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-[family-name:var(--font-space-grotesk)] text-lg font-semibold">
+                {loading ? 'Loading…' : `${filteredData.length} ${filteredData.length === 1 ? 'listing' : 'listings'}`}
+              </h2>
             </div>
 
             {loading ? (
-              <p className="text-gray-500 text-center py-32">Loading posts...</p>
+              <p className="text-gray-600 text-center py-32">Loading…</p>
             ) : error ? (
               <p className="text-red-400 text-center py-32">{error}</p>
             ) : filteredData.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredData.map((data) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {filteredData.map((item) => (
                   <ExchangeCard
-                    key={data.id}
-                    id={data.id}
-                    title={data.title}
-                    offer={data.offer}
-                    seek={data.seek}
-                    user={data.user}
-                    userId={data.userId}
+                    key={item.id}
+                    title={item.title}
+                    offers={item.offers}
+                    seeks={item.seeks}
+                    user={item.user}
+                    userId={item.userId}
+                    source={item.source}
                   />
                 ))}
               </div>
             ) : (
               <div className="flex justify-center items-center py-32">
-                <p className="text-gray-500 text-lg italic">No matching skills found.</p>
+                <p className="text-gray-600 text-sm italic">No matches found. Try different filters.</p>
               </div>
             )}
           </div>

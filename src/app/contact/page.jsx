@@ -1,161 +1,110 @@
 'use client';
 
 import { useFormik } from 'formik';
-import React from 'react';
+import { motion } from 'framer-motion';
 
-const Contact = () => {
+const inputClass =
+  'w-full p-3 rounded-lg bg-[#0a0a0a] border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-colors text-sm';
 
-  // Initialize Formik for the Contact Form
-  const contactForm = useFormik({
-    initialValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-    },
+export default function Contact() {
+  const form = useFormik({
+    initialValues: { name: '', email: '', message: '' },
     onSubmit: (values, { resetForm }) => {
-      console.log('Contact Form Submitted:', values);
-      // **TODO:** Add logic here to send the data to your backend service (e.g., email API, database)
-      alert('Thank you for reaching out! We will get back to you shortly.');
-      resetForm(); // Clear the form after submission
+      console.log('Contact form:', values);
+      alert('Message sent. We\'ll get back to you.');
+      resetForm();
     },
   });
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-10">
-      <div className="max-w-6xl mx-auto py-10">
-        
-        {/* Page Header */}
-        <h1 className="text-5xl font-extrabold text-center mb-4">
-          Get in Touch
-        </h1>
-        <p className="text-gray-400 text-lg text-center mb-12">
-          We'd love to hear from you—whether it's a question, a suggestion, or a bug report.
-        </p>
+    <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <section className="py-24 px-4 border-b border-white/5">
+        <div className="max-w-2xl mx-auto text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55 }}
+            className="font-[family-name:var(--font-space-grotesk)] text-4xl sm:text-5xl font-bold mb-4"
+          >
+            Get in touch
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.2 }}
+            className="text-gray-400"
+          >
+            Questions, feedback, bug reports — we read everything.
+          </motion.p>
+        </div>
+      </section>
 
-        {/* Main Content: Two Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
-          {/* Left Column: Contact Info */}
-          <div className="lg:col-span-1 space-y-8 p-6 rounded-xl bg-gray-900 shadow-2xl">
-            <h2 className="text-3xl font-bold border-b border-blue-500 pb-3">
-              Contact Details
-            </h2>
-
-            {/* Support Email */}
-            <div>
-              <p className="text-blue-400 font-semibold text-lg">General Support</p>
-              <p className="text-gray-300">support@xchangen.com</p>
-            </div>
-
-            {/* Business Inquiry */}
-            <div>
-              <p className="text-blue-400 font-semibold text-lg">Business Inquiries</p>
-              <p className="text-gray-300">bizdev@xchangen.com</p>
-            </div>
-
-            {/* Address Placeholder */}
-            <div>
-              <p className="text-blue-400 font-semibold text-lg">Our Office</p>
-              <p className="text-gray-300">123 Skill Exchange Blvd, Tech City, Global</p>
-            </div>
-
-            {/* Social Media Links (Placeholders) */}
-            <div className='pt-4'>
-                <p className="text-blue-400 font-semibold text-lg mb-2">Connect With Us</p>
-                <div className='flex space-x-4'>
-                    <a href="#" className='text-gray-500 hover:text-white transition'><i className="fab fa-twitter"></i> Twitter</a>
-                    <a href="#" className='text-gray-500 hover:text-white transition'><i className="fab fa-linkedin-in"></i> LinkedIn</a>
-                </div>
-            </div>
-
-          </div>
-
-          {/* Right Column: Contact Form */}
-          <div className="lg:col-span-2 p-6">
-            <h2 className="text-3xl font-bold mb-8 text-center lg:text-left">
-              Send us a message
-            </h2>
-
-            <form onSubmit={contactForm.handleSubmit} className="space-y-6">
-
-              {/* Name and Email in a single row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                {/* Name Input */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="John Doe"
-                    onChange={contactForm.handleChange}
-                    value={contactForm.values.name}
-                    required
-                    className="w-full p-3 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Email Input */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Your Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="your.email@example.com"
-                    onChange={contactForm.handleChange}
-                    value={contactForm.values.email}
-                    required
-                    className="w-full p-3 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Subject Input */}
+      <section className="py-16 px-4">
+        <div className="max-w-lg mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-[#161616] border border-amber-500/10 rounded-2xl p-8"
+          >
+            <form
+              onSubmit={(e) => { e.preventDefault(); form.handleSubmit(e); }}
+              className="space-y-5"
+            >
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Your name</label>
                 <input
                   type="text"
-                  id="subject"
-                  name="subject"
-                  placeholder="I have a question about my account..."
-                  onChange={contactForm.handleChange}
-                  value={contactForm.values.subject}
+                  name="name"
+                  placeholder="Full name"
+                  onChange={form.handleChange}
+                  value={form.values.name}
                   required
-                  className="w-full p-3 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Message Textarea */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">Message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="5"
-                  placeholder="Type your message here..."
-                  onChange={contactForm.handleChange}
-                  value={contactForm.values.message}
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Email address</label>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  onChange={form.handleChange}
+                  value={form.values.email}
                   required
-                  className="w-full p-3 rounded bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className={inputClass}
                 />
               </div>
 
-              {/* Submit Button */}
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">Message</label>
+                <textarea
+                  name="message"
+                  rows={5}
+                  placeholder="What's on your mind?"
+                  onChange={form.handleChange}
+                  value={form.values.message}
+                  required
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-150 shadow-lg"
+                className="w-full py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold text-sm transition-colors"
               >
                 Send Message
               </button>
             </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+          </motion.div>
 
-export default Contact;
+          <p className="text-center text-gray-600 text-xs mt-6">
+            You can also reach us at{' '}
+            <span className="text-gray-400">support@xchangen.com</span>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}
