@@ -7,7 +7,6 @@ import { getMe, getMySkills, deleteSkill } from '@/lib/api';
 import AddSkillModal from '@/components/AddSkillModal';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-const DEFAULT_AVATAR_BG = 'bg-gray-700';
 
 const Profile = () => {
   const router = useRouter();
@@ -45,17 +44,18 @@ const Profile = () => {
   };
 
   const SkillTag = ({ skill }) => {
-    let colorClass = 'bg-gray-700 text-gray-300';
-    if (skill.type === 'OFFER') colorClass = 'bg-green-600 text-white';
-    else if (skill.type === 'SEEK') colorClass = 'bg-blue-600 text-white';
+    const colorClass =
+      skill.type === 'OFFER'
+        ? 'bg-emerald-900/25 border border-emerald-700/40 text-emerald-400'
+        : 'bg-amber-900/25 border border-amber-700/40 text-amber-400';
 
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${colorClass} mr-2 mb-2`}>
         {skill.name}
-        <span className="ml-2 text-xs opacity-70">{skill.type}</span>
+        <span className="ml-2 text-xs opacity-60">{skill.type}</span>
         <button
           onClick={() => handleDeleteSkill(skill._id)}
-          className="ml-2 text-xs hover:text-red-300"
+          className="ml-2 text-xs opacity-50 hover:opacity-100 transition-opacity"
         >
           ✕
         </button>
@@ -67,9 +67,9 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p className="text-gray-400">
-          Please <a href="/login" className="text-blue-400 underline">log in</a> to view your profile.
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+        <p className="text-gray-500">
+          Please <a href="/login" className="text-amber-400 underline">log in</a> to view your profile.
         </p>
       </div>
     );
@@ -77,7 +77,7 @@ const Profile = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
         <p className="text-red-400">{error}</p>
       </div>
     );
@@ -91,98 +91,117 @@ const Profile = () => {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-10">
-      <div className="max-w-6xl mx-auto py-10">
-        <h1 className="text-4xl font-extrabold mb-8 text-center sm:text-left">
-          {userProfile.name}'s Profile
-        </h1>
+    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 sm:px-8 lg:px-12 py-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-10">
+          <h1 className="font-[family-name:var(--font-space-grotesk)] text-4xl sm:text-5xl font-bold mb-3">
+            {userProfile.name}'s Profile
+          </h1>
+          <p className="text-gray-500 text-base">Manage your skills and exchange preferences.</p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
-          <div className="lg:col-span-1 p-6 rounded-xl bg-gray-900 shadow-2xl space-y-6 text-center lg:text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 bg-[#161616] border border-white/5 rounded-2xl p-6 h-fit sticky top-20 space-y-5 text-center lg:text-left">
             <div className="flex justify-center lg:justify-start">
               {userProfile.profilePic ? (
                 <img
                   src={`${BASE_URL}${userProfile.profilePic}`}
                   alt={userProfile.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
+                  className="w-28 h-28 rounded-full object-cover border-2 border-amber-500/40"
                 />
               ) : (
-                <div className={`w-32 h-32 rounded-full ${DEFAULT_AVATAR_BG} flex items-center justify-center text-4xl font-bold border-4 border-blue-500`}>
+                <div className="w-28 h-28 rounded-full bg-[#2a2a2a] border-2 border-amber-500/40 flex items-center justify-center text-4xl font-bold text-amber-400">
                   {userProfile.name[0]}
                 </div>
               )}
             </div>
 
-            <h2 className="text-2xl font-bold mt-4">{userProfile.name}</h2>
-            <p className="text-sm text-gray-400">{userProfile.email}</p>
+            <div>
+              <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-bold text-white">{userProfile.name}</h2>
+              <p className="text-sm text-gray-500 mt-1">{userProfile.email}</p>
+            </div>
 
-            <div className="border-t border-gray-700 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between lg:block">
-                <p className="font-semibold text-gray-300">Location:</p>
-                <p className="text-blue-400">{userProfile.location || 'Not set'}</p>
+            <div className="border-t border-white/5 pt-4 space-y-3 text-sm">
+              <div>
+                <p className="text-xs text-gray-600 uppercase tracking-widest mb-0.5">Location</p>
+                <p className="text-amber-400">{userProfile.location || 'Not set'}</p>
               </div>
-              <div className="flex justify-between lg:block">
-                <p className="font-semibold text-gray-300">Member Since:</p>
-                <p className="text-blue-400">{memberSince}</p>
+              <div>
+                <p className="text-xs text-gray-600 uppercase tracking-widest mb-0.5">Member Since</p>
+                <p className="text-amber-400">{memberSince}</p>
               </div>
             </div>
 
             <button
               onClick={() => router.push('/edit')}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-150"
+              className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] font-semibold text-sm transition-colors"
             >
               Edit Profile
             </button>
 
             <button
               onClick={() => { logout(); router.push('/'); }}
-              className="w-full py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition duration-150"
+              className="w-full py-2.5 rounded-xl border border-white/8 text-gray-400 hover:text-white hover:border-white/15 font-semibold text-sm transition-colors"
             >
               Logout
             </button>
           </div>
 
-          <div className="lg:col-span-3 space-y-10">
-            <div className="p-6 rounded-xl bg-gray-900 shadow-2xl">
-              <h2 className="text-2xl font-bold border-b border-gray-700 pb-3 mb-4">About Me</h2>
-              <p className="text-gray-300 leading-relaxed">
+          {/* Main content */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* About */}
+            <div className="bg-[#161616] border border-white/5 rounded-2xl p-6">
+              <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-bold mb-1">About Me</h2>
+              <div className="h-px bg-white/5 mb-4" />
+              <p className="text-gray-400 leading-relaxed">
                 {userProfile.bio || 'No bio yet — add one from Edit Profile.'}
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-gray-900 shadow-2xl">
-              <h2 className="text-2xl font-bold border-b border-gray-700 pb-3 mb-4 flex justify-between items-center">
-                Skills & Exchange Status
+            {/* Skills */}
+            <div className="bg-[#161616] border border-white/5 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-1">
+                <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-bold">Skills & Exchange Status</h2>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="text-sm text-blue-400 hover:text-blue-300"
+                  className="text-sm text-amber-400 hover:text-amber-300 transition-colors"
                 >
                   + Add Skill
                 </button>
-              </h2>
+              </div>
+              <div className="h-px bg-white/5 mb-5" />
 
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-green-400 mb-2">What I Offer (My Expertise)</h3>
+              <div className="mb-5">
+                <p className="text-xs text-gray-600 uppercase tracking-widest mb-3">What I Offer</p>
                 <div className="flex flex-wrap">
-                  {skills.filter((s) => s.type === 'OFFER').map((skill) => (
-                    <SkillTag key={skill._id} skill={skill} />
-                  ))}
+                  {skills.filter((s) => s.type === 'OFFER').length > 0
+                    ? skills.filter((s) => s.type === 'OFFER').map((skill) => (
+                        <SkillTag key={skill._id} skill={skill} />
+                      ))
+                    : <p className="text-gray-600 text-sm italic">No offering skills added yet.</p>
+                  }
                 </div>
               </div>
 
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-blue-400 mb-2">What I'm Seeking to Learn</h3>
+              <div>
+                <p className="text-xs text-gray-600 uppercase tracking-widest mb-3">What I'm Seeking</p>
                 <div className="flex flex-wrap">
-                  {skills.filter((s) => s.type === 'SEEK').map((skill) => (
-                    <SkillTag key={skill._id} skill={skill} />
-                  ))}
+                  {skills.filter((s) => s.type === 'SEEK').length > 0
+                    ? skills.filter((s) => s.type === 'SEEK').map((skill) => (
+                        <SkillTag key={skill._id} skill={skill} />
+                      ))
+                    : <p className="text-gray-600 text-sm italic">No seeking skills added yet.</p>
+                  }
                 </div>
               </div>
             </div>
 
-            <div className="p-6 rounded-xl bg-gray-900 shadow-2xl">
-              <h2 className="text-2xl font-bold border-b border-gray-700 pb-3 mb-4">Exchange History</h2>
-              <p className="text-gray-500 italic">No recent exchanges found. Start your first skill swap now!</p>
+            {/* Exchange history */}
+            <div className="bg-[#161616] border border-white/5 rounded-2xl p-6">
+              <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-bold mb-1">Exchange History</h2>
+              <div className="h-px bg-white/5 mb-4" />
+              <p className="text-gray-600 italic text-sm">No recent exchanges found. Start your first skill swap now!</p>
             </div>
           </div>
         </div>

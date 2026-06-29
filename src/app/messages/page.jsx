@@ -36,70 +36,80 @@ export default function MessagesPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p className="text-gray-400">
-          Please <a href="/login" className="text-blue-400 underline">log in</a> to view messages.
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+        <p className="text-gray-500">
+          Please <a href="/login" className="text-amber-400 underline">log in</a> to view messages.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 sm:px-8 py-10 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Messages</h1>
-
-      {fetching ? (
-        <p className="text-gray-500">Loading conversations…</p>
-      ) : error ? (
-        <p className="text-red-400">{error}</p>
-      ) : conversations.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-gray-500 mb-4">No conversations yet.</p>
-          <button
-            onClick={() => router.push('/exchange')}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold transition"
-          >
-            Browse Exchange Board
-          </button>
+    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 sm:px-8 lg:px-12 py-10">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-10">
+          <h1 className="font-[family-name:var(--font-space-grotesk)] text-4xl sm:text-5xl font-bold mb-3">
+            Messages
+          </h1>
+          <p className="text-gray-500 text-base">Your conversations with skill exchange partners.</p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {conversations.map((conv) => {
-            const isOnline = onlineUsers.includes(conv.userId?.toString());
-            return (
-              <button
-                key={conv.userId}
-                onClick={() => router.push(`/chat/${conv.userId}`)}
-                className="w-full text-left bg-gray-900 border border-gray-800 hover:border-blue-600 rounded-2xl p-5 transition flex justify-between items-center"
-              >
-                <div className="flex items-center gap-3">
-                  {/* Avatar with online dot */}
-                  <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold text-sm">
-                      {conv.name?.[0]?.toUpperCase() ?? '?'}
+
+        {fetching ? (
+          <p className="text-gray-600 text-center py-32">Loading conversations…</p>
+        ) : error ? (
+          <p className="text-red-400 text-center py-32">{error}</p>
+        ) : conversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <p className="text-gray-600 italic">No conversations yet.</p>
+            <button
+              onClick={() => router.push('/exchange')}
+              className="bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] px-6 py-3 rounded-xl font-semibold transition-colors text-sm"
+            >
+              Browse Exchange Board
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {conversations.map((conv) => {
+              const isOnline = onlineUsers.includes(conv.userId?.toString());
+              return (
+                <button
+                  key={conv.userId}
+                  onClick={() => router.push(`/chat/${conv.userId}`)}
+                  className="w-full text-left bg-[#161616] border border-white/5 hover:border-amber-500/20 hover:shadow-[0_0_24px_rgba(245,158,11,0.08)] rounded-2xl p-5 transition-all duration-300 flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#2a2a2a] border border-white/10 flex items-center justify-center text-amber-400 font-bold text-sm">
+                        {conv.name?.[0]?.toUpperCase() ?? '?'}
+                      </div>
+                      {isOnline && (
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-[#161616] shadow-[0_0_6px_#4ade80]" />
+                      )}
                     </div>
-                    {isOnline && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900 shadow-[0_0_6px_#4ade80]" />
-                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-white">{conv.name}</p>
+                        {isOnline && (
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-900/25 border border-green-700/40 text-green-400">
+                            Online
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-500 text-sm truncate max-w-xs mt-0.5">{conv.lastMessage}</p>
+                    </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-white">{conv.name}</p>
-                      {isOnline && <span className="text-green-400 text-xs">Online</span>}
-                    </div>
-                    <p className="text-gray-400 text-sm truncate max-w-xs">{conv.lastMessage}</p>
-                  </div>
-                </div>
-
-                <span className="text-gray-500 text-xs flex-shrink-0">
-                  {new Date(conv.lastMessageAt).toLocaleDateString()}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+                  <span className="text-gray-600 text-xs flex-shrink-0">
+                    {new Date(conv.lastMessageAt).toLocaleDateString()}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

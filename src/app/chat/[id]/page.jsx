@@ -68,7 +68,6 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, peerIsTyping]);
 
-  // ── Text messaging ────────────────────────────────────────────────
   const handleInputChange = (e) => {
     setInput(e.target.value);
     const socket = getSocket();
@@ -99,7 +98,6 @@ export default function ChatPage() {
     }
   };
 
-  // ── File sharing ──────────────────────────────────────────────────
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -118,7 +116,6 @@ export default function ChatPage() {
     e.target.value = '';
   };
 
-  // ── Voice recording ───────────────────────────────────────────────
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -154,7 +151,6 @@ export default function ChatPage() {
     setIsRecording(false);
   };
 
-  // ── Message rendering ─────────────────────────────────────────────
   const renderMessageContent = (msg) => {
     if (msg.type === 'voice') {
       return <audio controls src={`${BASE_URL}${msg.fileUrl}`} className="max-w-[240px]" />;
@@ -166,7 +162,7 @@ export default function ChatPage() {
       }
       return (
         <a href={`${BASE_URL}${msg.fileUrl}`} download={msg.fileName} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 underline text-blue-300 text-sm">
+          className="flex items-center gap-2 underline text-amber-400 text-sm">
           <span>📎</span> {msg.fileName || 'Download file'}
         </a>
       );
@@ -178,24 +174,29 @@ export default function ChatPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p className="text-gray-400">Please <a href="/login" className="text-blue-400 underline">log in</a> to chat.</p>
+      <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+        <p className="text-gray-500">Please <a href="/login" className="text-amber-400 underline">log in</a> to chat.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col px-4 py-8 max-w-3xl mx-auto">
-      <button onClick={() => router.push('/exchange')} className="text-gray-400 hover:text-white mb-4 text-sm self-start">
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col px-4 py-8 max-w-3xl mx-auto">
+      <button
+        onClick={() => router.push('/exchange')}
+        className="text-gray-500 hover:text-amber-400 mb-6 text-sm self-start transition-colors"
+      >
         ← Back to Exchange
       </button>
 
-      <div className="flex-1 bg-gray-900 border border-gray-800 rounded-2xl p-6 flex flex-col">
+      <div className="flex-1 bg-[#161616] border border-white/5 rounded-2xl p-6 flex flex-col">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-4">
+        <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold">{peerName || 'Conversation'}</h2>
+            <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-bold">
+              {peerName || 'Conversation'}
+            </h2>
             <div className="flex items-center gap-1.5">
               <span className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-green-400 shadow-[0_0_6px_#4ade80]' : 'bg-gray-600'}`} />
               <span className={`text-sm ${isOnline ? 'text-green-400' : 'text-gray-500'}`}>
@@ -205,35 +206,43 @@ export default function ChatPage() {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => startCall(receiverId, 'audio', peerName)} title="Voice call"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-800 hover:bg-green-700 text-white text-sm transition">
+            <button
+              onClick={() => startCall(receiverId, 'audio', peerName)}
+              title="Voice call"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0a0a0a] border border-white/8 hover:border-amber-500/40 hover:text-amber-400 text-gray-300 text-sm transition-colors"
+            >
               <PhoneIcon /> Voice
             </button>
-            <button onClick={() => startCall(receiverId, 'video', peerName)} title="Video call"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-800 hover:bg-blue-700 text-white text-sm transition">
+            <button
+              onClick={() => startCall(receiverId, 'video', peerName)}
+              title="Video call"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0a0a0a] border border-white/8 hover:border-amber-500/40 hover:text-amber-400 text-gray-300 text-sm transition-colors"
+            >
               <VideoIcon /> Video
             </button>
           </div>
         </div>
 
         {error && (
-          <p className="bg-red-900/30 border border-red-700 text-red-300 rounded-xl px-4 py-2 mb-4 text-sm">{error}</p>
+          <p className="bg-red-900/20 border border-red-700/40 text-red-400 rounded-xl px-4 py-2 mb-4 text-sm">{error}</p>
         )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-[55vh] pr-1">
           {messages.length === 0 ? (
-            <p className="text-gray-500 text-center py-10">No messages yet. Say hello!</p>
+            <p className="text-gray-600 text-center py-10 italic">No messages yet. Say hello!</p>
           ) : (
             messages.map((msg) => {
               const isMine = msg.sender === user._id || msg.sender?._id === user._id;
               return (
                 <div key={msg._id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                   <div className={`px-4 py-2 rounded-2xl max-w-xs break-words ${
-                    isMine ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-200 border border-gray-700'
+                    isMine
+                      ? 'bg-amber-500 text-[#0a0a0a] font-medium'
+                      : 'bg-[#1e1e1e] border border-white/8 text-gray-200'
                   }`}>
                     {renderMessageContent(msg)}
-                    <p className="text-xs mt-1 opacity-50 text-right">
+                    <p className={`text-xs mt-1 opacity-60 text-right ${isMine ? 'text-[#0a0a0a]' : 'text-gray-400'}`}>
                       {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -244,10 +253,10 @@ export default function ChatPage() {
 
           {peerIsTyping && (
             <div className="flex justify-start">
-              <div className="bg-gray-800 border border-gray-700 px-4 py-2 rounded-2xl flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+              <div className="bg-[#1e1e1e] border border-white/8 px-4 py-2 rounded-2xl flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:0ms]" />
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:300ms]" />
               </div>
             </div>
           )}
@@ -257,27 +266,41 @@ export default function ChatPage() {
         {/* Input bar */}
         <div className="flex items-center gap-2">
           <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} />
-          <button type="button" onClick={() => fileInputRef.current?.click()} title="Share file"
-            className="p-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white transition flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            title="Share file"
+            className="p-3 rounded-xl bg-[#0a0a0a] border border-white/8 hover:border-amber-500/40 text-gray-400 hover:text-amber-400 transition-colors flex-shrink-0"
+          >
             <PaperclipIcon />
           </button>
 
-          <button type="button"
+          <button
+            type="button"
             onMouseDown={startRecording} onMouseUp={stopRecording}
             onTouchStart={startRecording} onTouchEnd={stopRecording}
             title={isRecording ? 'Release to send' : 'Hold to record'}
-            className={`p-3 rounded-xl transition flex-shrink-0 select-none ${
-              isRecording ? 'bg-red-600 scale-110' : 'bg-gray-800 hover:bg-gray-700'
-            } text-white`}>
+            className={`p-3 rounded-xl transition-colors flex-shrink-0 select-none border ${
+              isRecording
+                ? 'bg-red-600 border-red-500 text-white scale-110'
+                : 'bg-[#0a0a0a] border-white/8 text-gray-400 hover:border-amber-500/40 hover:text-amber-400'
+            }`}
+          >
             <MicIcon recording={isRecording} />
           </button>
 
           <form onSubmit={handleSend} className="flex gap-2 flex-1">
-            <input type="text" value={input} onChange={handleInputChange}
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
               placeholder={isRecording ? 'Recording… release to send' : 'Type a message…'}
-              className="flex-1 bg-black border border-gray-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 text-sm" />
-            <button type="submit"
-              className="bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-xl font-semibold transition text-sm">
+              className="flex-1 bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-amber-500/50 text-sm text-white placeholder-gray-600 transition-colors"
+            />
+            <button
+              type="submit"
+              className="bg-amber-500 hover:bg-amber-400 text-[#0a0a0a] px-5 py-3 rounded-xl font-semibold transition-colors text-sm"
+            >
               Send
             </button>
           </form>
