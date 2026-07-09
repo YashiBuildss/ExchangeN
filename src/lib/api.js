@@ -2,6 +2,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 const getToken = () => localStorage.getItem('token');
 
+// Uploaded media may be a full Cloudinary URL or a legacy local "/uploads/..." path
+export const resolveMediaUrl = (url) => {
+  if (!url) return url;
+  return /^https?:\/\//.test(url) ? url : `${BASE_URL}${url}`;
+};
+
 export const signup = async (name, email, password) => {
   const res = await fetch(`${BASE_URL}/user/signup`, {
     method: 'POST',

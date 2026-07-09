@@ -3,10 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getMe, getMySkills, deleteSkill } from '@/lib/api';
+import { getMe, getMySkills, deleteSkill, resolveMediaUrl } from '@/lib/api';
 import AddSkillModal from '@/components/AddSkillModal';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 const Profile = () => {
   const router = useRouter();
@@ -106,7 +104,7 @@ const Profile = () => {
             <div className="flex justify-center lg:justify-start">
               {userProfile.profilePic ? (
                 <img
-                  src={`${BASE_URL}${userProfile.profilePic}`}
+                  src={resolveMediaUrl(userProfile.profilePic)}
                   alt={userProfile.name}
                   className="w-28 h-28 rounded-full object-cover border-2 border-amber-500/40"
                 />

@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { getMe, updateMe } from '@/lib/api';
+import { getMe, updateMe, resolveMediaUrl } from '@/lib/api';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -32,7 +32,7 @@ const EditProfilePage = () => {
         location: data.location || '',
         bio: data.bio || '',
       });
-      if (data.profilePic) setPreviewUrl(`${BASE_URL}${data.profilePic}`);
+      if (data.profilePic) setPreviewUrl(resolveMediaUrl(data.profilePic));
     });
   }, [user]);
 

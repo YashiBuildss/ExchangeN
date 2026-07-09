@@ -4,10 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCall } from '@/context/CallContext';
-import { getConversation, sendMessageHttp, sendFileMessage, getUserById } from '@/lib/api';
+import { getConversation, sendMessageHttp, sendFileMessage, getUserById, resolveMediaUrl } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function ChatPage() {
   const { id: receiverId } = useParams();
@@ -153,15 +151,15 @@ export default function ChatPage() {
 
   const renderMessageContent = (msg) => {
     if (msg.type === 'voice') {
-      return <audio controls src={`${BASE_URL}${msg.fileUrl}`} className="max-w-[240px]" />;
+      return <audio controls src={resolveMediaUrl(msg.fileUrl)} className="max-w-[240px]" />;
     }
     if (msg.type === 'file') {
       const isImage = msg.fileMimeType?.startsWith('image/');
       if (isImage) {
-        return <img src={`${BASE_URL}${msg.fileUrl}`} alt={msg.fileName} className="max-w-[220px] rounded-lg" />;
+        return <img src={resolveMediaUrl(msg.fileUrl)} alt={msg.fileName} className="max-w-[220px] rounded-lg" />;
       }
       return (
-        <a href={`${BASE_URL}${msg.fileUrl}`} download={msg.fileName} target="_blank" rel="noopener noreferrer"
+        <a href={resolveMediaUrl(msg.fileUrl)} download={msg.fileName} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-2 underline text-amber-400 text-sm">
           <span>📎</span> {msg.fileName || 'Download file'}
         </a>
