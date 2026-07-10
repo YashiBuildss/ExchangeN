@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Skill Swap (ExchangeN) — Frontend
 
-## Getting Started
+A platform where users trade skills with each other — offer what you know, find someone who can teach you what you don't. Built with Next.js.
 
-First, run the development server:
+Live app: https://frontend-green-three-51.vercel.app
+Backend API: https://skill-swap-backend-30a3.onrender.com ([repo](https://github.com/YashiBuildss/skill-swap-backend))
+
+## Features
+
+- Signup/login
+- Browse skill-matching listings and posts
+- Editable profile with photo upload
+- Real-time 1:1 chat — text, file, and voice messages, typing indicators, online status
+- Audio/video calling via WebRTC
+- Contact and about pages
+
+## Tech stack
+
+- **Next.js 15** (App Router) + **React 19**
+- **Tailwind CSS 4**
+- **Socket.io client** — real-time chat, presence, call signaling
+- **Formik + Yup** — forms and validation
+- **Framer Motion** — animations
+
+## Local setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Requires the [backend](https://github.com/YashiBuildss/skill-swap-backend) running locally (or pointed at a deployed instance) via the env var below.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local`:
 
-## Learn More
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-To learn more about Next.js, take a look at the following resources:
+Point this at your backend's URL — locally or deployed.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Deployed on [Vercel](https://vercel.com). `NEXT_PUBLIC_API_URL` is set in the Vercel project's Production environment to the live backend URL. Deploy with:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+vercel --prod
+```
