@@ -10,6 +10,7 @@ Find someone whose skills complement yours, and swap.
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-6d28d9?style=for-the-badge&logo=vercel&logoColor=white)](https://frontend-green-three-51.vercel.app)
 [![GitHub Stars](https://img.shields.io/github/stars/YashiBuildss/ExchangeN?style=for-the-badge&color=facc15)](https://github.com/YashiBuildss/ExchangeN/stargazers)
 [![Backend Repo](https://img.shields.io/badge/Backend-skill--swap--backend-22c55e?style=for-the-badge&logo=express&logoColor=white)](https://github.com/YashiBuildss/skill-swap-backend)
+[![Realtime](https://img.shields.io/badge/Realtime-Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white)](https://socket.io/)
 
 </div>
 
@@ -33,6 +34,55 @@ Find someone whose skills complement yours, and swap.
 | 👤 **Profiles** | Editable bio, location, and profile picture |
 | 💬 **Real-time Chat** | Text, file, and voice messages with typing indicators and online status |
 | 📞 **Voice/Video Calls** | WebRTC calling, signaled over Socket.io |
+
+---
+
+## 🖥️ Screenshots
+
+<details>
+<summary>🏠 Home Page</summary>
+<br/>
+<img src="./public/screenshots/home.png" alt="Home Page" width="100%"/>
+
+> Hero, value pitch, and calls to action
+
+</details>
+
+<details>
+<summary>🧩 Skill Exchange</summary>
+<br/>
+<img src="./public/screenshots/exchange.png" alt="Skill Exchange" width="100%"/>
+
+> Browse and filter skill-matching listings from other users
+
+</details>
+
+<details>
+<summary>📝 Sign Up</summary>
+<br/>
+<img src="./public/screenshots/signup.png" alt="Sign Up" width="100%"/>
+
+> Create a free account to start swapping
+
+</details>
+
+<details>
+<summary>🔑 Log In</summary>
+<br/>
+<img src="./public/screenshots/login.png" alt="Log In" width="100%"/>
+
+> Return and continue swapping skills
+
+</details>
+
+<details>
+<summary>ℹ️ About</summary>
+<br/>
+<img src="./public/screenshots/aboutus.png" alt="About Page" width="100%"/>
+
+> What XchangeN is building and why
+
+</details>
 
 ---
 
